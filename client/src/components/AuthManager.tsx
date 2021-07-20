@@ -160,9 +160,51 @@ const AuthManager: FC = () => {
         });
     };
 
-    // TODO
-    const signupCallback = () => {
+    const signupCallback = (username: string, password: string) => {
+        console.log(`Attempting to sign up with username "${username}" and password "${password}"`);
 
+        const body = {
+            username: username,
+            password: password,
+        };
+
+        // TODO save urls in utils/api.ts
+        return fetch("http://localhost:4000/signup", {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            method: "POST",
+        }).then(data => {
+            console.log(`Status: ${data.status}`);
+            return data.json();
+        }).then(json => {
+            if (Object.keys(json).includes("message")) {
+                console.log(`Message: ${json.message}`)
+            }
+
+            if (!json.token) {
+                console.log("Error: No token returned")
+                return {
+                    success: false,
+                    message: json.message,
+                };
+            }
+
+            const context = {
+                auth: true,
+                guest: false,
+                username: username,
+                token: json.token,
+                callbacks: getCallbacks(),
+            };
+            setAuthContext(context);
+            createSocket(context);
+            saveContext(context);
+
+            return { success: true };
+        }).catch(err => {
+            console.log(`Error: ${err}`);
+            return {success: false };
+        });
     };
 
     const logoutCallback = () => {

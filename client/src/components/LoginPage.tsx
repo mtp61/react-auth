@@ -1,6 +1,6 @@
-import { FC, Fragment } from "react";
-import { useState, useCallback, useContext } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { FC } from "react";
+import { useState, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import AuthContextType from "../types/AuthContextType";
 import { AuthContext } from "./AuthManager";
 
@@ -31,14 +31,13 @@ const LoginPage: FC = () => {
                     history.push("/");
                 } else {
                     setErrorText(resp.message || "");
-
                 }
             });
     };
 
     return (
         <div>
-            <h1>Login</h1>
+            <h1>Log In</h1>
             Username:
             {' '}
             <input
@@ -55,7 +54,6 @@ const LoginPage: FC = () => {
                 onChange={(e) => {setPassword(e.target.value)}}
             />
             <br />
-            Repeat Password:
             {
                 errorText && (
                     <p style={{color: "red"}}>{errorText}</p>

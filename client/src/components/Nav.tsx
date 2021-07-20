@@ -65,9 +65,15 @@ const Nav: FC = () => {
                         </li>
                     </Fragment>
                 ) : (
-                    <li className="nav-item right clickable">
-                        <Link to="/login">Log In</Link>
-                    </li>
+                    <Fragment>
+                        <li className="nav-item right clickable">
+                            <Link to="/signup">Sign Up</Link>
+                        </li>
+                        <li className="nav-divider right">|</li>
+                        <li className="nav-item right clickable">
+                            <Link to="/login">Log In</Link>
+                        </li>
+                    </Fragment>
                 )
             }
         </ul>
