@@ -73,6 +73,16 @@ const Nav: FC = () => {
                         <li className="nav-item right clickable">
                             <Link to="/login">Log In</Link>
                         </li>
+                        {
+                            authContext.auth && (
+                                <Fragment>
+                                    <li className="nav-divider right">|</li>
+                                    <li className="nav-item right">
+                                        <a>{authContext.username || ""}</a>
+                                    </li>
+                                </Fragment>
+                            )
+                        }
                     </Fragment>
                 )
             }

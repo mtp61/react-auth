@@ -122,6 +122,19 @@ app.post("/signup", (req, res) => {
     })
 });
 
+app.post("/guest", (req, res) => {
+    // generate a guest username
+    const num = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    const username = "guest-" + num;
+
+    const token = generateAccessToken(username);
+
+    res.status(200).send({
+        username: username,
+        token: token,
+    });
+});
+
 app.post("/checktoken", (req, res) => {
     const requiredKeys = ["token"];
     if (!requiredKeys.every(key => {

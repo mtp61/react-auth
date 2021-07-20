@@ -210,6 +210,7 @@ const AuthManager: FC = () => {
     const logoutCallback = () => {
         setAuthContext(getAuthContextDefault());
         localStorage.clear();
+        getGuestAuth();
     };
 
     const getCallbacks = () => ({
@@ -223,6 +224,41 @@ const AuthManager: FC = () => {
         callbacks: getCallbacks(),
     });
 
+    const getGuestAuth = () => {
+        console.log("Getting guest auth token");
+        
+        fetch("http://localhost:4000/guest", {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+            method: "POST",
+        }).then(data => {
+            console.log(`Status: ${data.status}`);
+            return data.json();
+        }).then(json => {
+            if (!json.token) {
+                console.log("Error: No token returned")
+                return;
+            }
+            if (!json.username) {
+                console.log("Error: No username returned")
+                return;
+            }
+
+            const context = {
+                auth: true,
+                guest: true,
+                username: json.username,
+                token: json.token,
+                callbacks: getCallbacks(),
+            };
+            setAuthContext(context);
+            createSocket(context);
+            saveContext(context);
+        }).catch(err => {
+            console.log(`Error: ${err}`);
+        });
+    };
+
     // manage user info on page load
     useEffect(() => {
         console.log("attempting to load context from local storage");
@@ -231,11 +267,10 @@ const AuthManager: FC = () => {
             console.log("loaded context from local storage");
             createSocket(result.context);
         } else {
-            console.log("no context in local storage")
+            console.log("no context in local storage");
+            
             setAuthContext(getAuthContextDefault());
-
-            // get guest auth TODO
-
+            getGuestAuth();
         }
     }, []);
 
