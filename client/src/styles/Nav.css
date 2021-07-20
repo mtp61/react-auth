@@ -1,0 +1,38 @@
+.nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: lightblue;
+}
+
+.nav-divider {
+    display: block;
+    color: black;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-decoration: none;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float:right;
+}
+
+.nav-item a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 10px;
+    text-decoration: none;
+    user-select: none;
+}
+
+.clickable:hover {
+    background-color: darkblue;
+    color: white;
+}
