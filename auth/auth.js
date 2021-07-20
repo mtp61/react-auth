@@ -2,7 +2,7 @@
 // https://github.com/WebDevSimplified/Nodejs-User-Authentication/blob/master/server.js
 // https://expressjs.com/en/4x/api.html#res.send
 
-require("dotenv").config();
+require("dotenv").config('./.env');
 
 const express = require("express");
 const app = express();
@@ -136,13 +136,13 @@ app.post("/checktoken", (req, res) => {
 
     const token = req.body.token;
 
-    try {
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        res.status(200).send({ message: `Valid token with username "${decoded.username}"`})
-    } catch (err) {
-        res.status(401).send({ message: "Invalid token" });
-        return;
-    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            res.status(401).send({ message: "Invalid token" });
+            return;
+        }
+        res.status(200).send({ message: `Valid token with username "${decoded.username}"`});
+    });
 });
 
 app.listen(4000);

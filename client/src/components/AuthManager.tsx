@@ -17,8 +17,11 @@ const AuthManager: FC = () => {
             return;
         }
 
-        // TODO auth
-        const socket = io("http://localhost:5000");
+        // create a socket with authentication
+        const token = context ? context.token : authContext.token;
+        const socket = io("http://localhost:5000", { 
+            auth: { token: token },
+        });
 
         setAuthContext(prevAuthContext => ({
             auth: true,
