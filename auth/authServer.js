@@ -11,9 +11,11 @@ const bcrypt = require("bcrypt");
 const cors = require("cors");
 const mongoose = require("mongoose");
 
+// db models
 const User = require("./models/User");
 
 // constants
+const PORT = 4000;
 const saltRounds = 4;
 const dbUser = "test-user";
 const dbPass = "12345";
@@ -181,4 +183,4 @@ app.post("/checktoken", (req, res) => {
     });
 });
 
-app.listen(4000);
+app.listen(PORT);

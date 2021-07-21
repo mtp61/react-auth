@@ -32,6 +32,15 @@
     user-select: none;
 }
 
+.nav-item span {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 10px;
+    text-decoration: none;
+    user-select: none;
+}
+
 .clickable:hover {
     background-color: darkblue;
     color: white;

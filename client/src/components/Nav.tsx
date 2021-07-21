@@ -30,7 +30,7 @@ const ConnectionIndicator: FC = () => {
 
     return (
         <li className="nav-item right">
-            <a style={{backgroundColor: color}}>{text}</a>
+            <span style={{backgroundColor: color}}>{text}</span>
         </li>
     );
 };
@@ -57,11 +57,11 @@ const Nav: FC = () => {
                 authContext.auth && !authContext.guest ? (
                     <Fragment>
                         <li className="nav-item right clickable">
-                            <a onClick={onClickLogout}>Log Out</a>
+                            <span onClick={onClickLogout}>Log Out</span>
                         </li>
                         <li className="nav-divider right">|</li>
                         <li className="nav-item right">
-                            <a>{authContext.username || ""}</a>
+                            <span>{authContext.username || ""}</span>
                         </li>
                     </Fragment>
                 ) : (
@@ -78,7 +78,7 @@ const Nav: FC = () => {
                                 <Fragment>
                                     <li className="nav-divider right">|</li>
                                     <li className="nav-item right">
-                                        <a>{authContext.username || ""}</a>
+                                        <span>{authContext.username || ""}</span>
                                     </li>
                                 </Fragment>
                             )

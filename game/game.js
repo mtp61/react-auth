@@ -1,51 +1,58 @@
-// https://stackoverflow.com/questions/36788831/authenticating-socket-io-connections-using-jwt
 
-const PORT = 5000;
 
-require("dotenv").config('./.env');
+class Game {
+    constructor() {
+        this.id =  Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
 
-const jwt = require("jsonwebtoken");
+        this.players = {};
+        this.observers = {};
 
-// create server
-const httpServer = require('http').createServer();
-const io = require('socket.io')(httpServer, {
-    cors: {
-        origin: '*',
-    },
-});
+        this.started = false;
+    }
 
-// use authentication
-io.use((socket, next) => {
-    if (socket.handshake.auth && socket.handshake.auth.token) {
-        jwt.verify(socket.handshake.auth.token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-            if (err) {
-                console.log("Auth error -- bad token");
-                return next(new Error("Auth error -- bad token"));
-            } else {
-                console.log("Auth success");
-                socket.decoded = decoded;
-                next();
+    // TODO
+    update() {
+
+    }
+
+    addSocket(socket) {
+        if (!Object.keys(this.observers).includes(socket.id)) {
+            this.observers[socket.id] = socket;
+        }
+    }
+
+    shouldDelete() {
+        if (Object.keys(this.observers).length === 0) {
+            return true;
+        }
+    }
+
+    removeSocket(socket) {
+        // check observer sockets
+        let hasSocket = false;
+        Object.keys(this.observers).forEach(id => {
+            if (id === socket.id) {
+                hasSocket = true;
+                return;
             }
         });
-    } else {
-        console.log("Auth error -- missing token");
-        return next(new Error("Auth error -- missing token"));
+        if (hasSocket) {
+            return true;
+        }
+
+        // check player sockets
+        Object.keys(this.players).forEach(id => {
+            if (id === socket.id) {
+                hasSocket = true;
+                return;
+            }
+        });
+        if (hasSocket) {
+            return true;
+        }
+
+        return false;
     }
-}).on('connection', socket => {
-    // print when there's a connection or new data
-    console.log(`connection: ${socket.id}`)
+}
 
-    socket.on('message', (message) => {
-        io.emit('message', message);
-        
-        // console.log(message);
-    });
-
-    socket.onAny((event, ...args) => {
-        console.log(event, args);
-    });
-});
-
-// start the server
-httpServer.listen(PORT);
-console.log('starting server on port ' + PORT);
+module.exports = Game;

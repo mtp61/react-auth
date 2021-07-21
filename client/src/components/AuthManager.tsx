@@ -272,6 +272,7 @@ const AuthManager: FC = () => {
             setAuthContext(getAuthContextDefault());
             getGuestAuth();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
