@@ -9,19 +9,28 @@ const app = express();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
+const User = require("./models/User");
+
+// constants
+const saltRounds = 4;
+const dbUser = "test-user";
+const dbPass = "12345";
+
+// setup app
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-const saltRounds = 4;
-
-// TODO use a database
-const users = [
-    {
-        username: "mtpink",
-        hashPass: "$2b$04$Vlrnv/6e5cMeM7SEgXvDDOLWpZxKhArdzuRfQxhyOT5pXRXoHu9y6", // "a"
-    },
-];
+// connect to database
+mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster0.zng34.mongodb.net/test-db?retryWrites=true&w=majority`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => {
+        console.log("connected to database")
+    })
+    .catch(err => console.log(err));
 
 const generateAccessToken = username => jwt.sign(
     {username: username}, 
@@ -44,34 +53,34 @@ app.post("/login", (req, res) => {
     const password = req.body.password;
 
     // check for user
-    let hasUser = false;
-    let hashPass;
-    users.forEach(user => {
-        if (user.username === username) {
-            hasUser = true;
-            hashPass = user.hashPass;
-        }
-    });
-    if (!hasUser) {
-        res.status(400).send({ message: `User "${username}" does not exist` });
-        return;
-    }
+    User.findOne({ username: username }).exec()
+        .then((user) => {
+            if (!user) {
+                res.status(400).send({ message: `User "${username}" does not exist` });
+                return;
+            }
+            const hashPass = user.hashPass;
 
-    // check password
-    bcrypt.compare(password, hashPass, (err, result) => {
-        if (err) {
-            console.log(`bcrypt.compare error: ${err}`);
-            res.status(500).send({ message: "Internal Server Error" });
-            return;
-        }
+            // check password
+            bcrypt.compare(password, hashPass, (err, result) => {
+                if (err) {
+                    console.log(`bcrypt.compare error: ${err}`);
+                    res.status(500).send({ message: "Internal Server Error" });
+                    return;
+                }
 
-        if (!result) {
-            res.status(401).send({ message: "Incorrect Password" });
-            return;
-        }
-        
-        res.status(200).send({ token: generateAccessToken(username) });
-    });
+                if (!result) {
+                    res.status(401).send({ message: "Incorrect Password" });
+                    return;
+                }
+                
+                res.status(200).send({ token: generateAccessToken(username) });
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send({ message: "Database error" });
+        });
 });
 
 app.post("/signup", (req, res) => {
@@ -99,27 +108,41 @@ app.post("/signup", (req, res) => {
     }
 
     // make sure there aren't any users with the same name
-    if (!users.every(user => user.username !== username)) {
-        res.status(400).send({ message: `There is already a user with username "${username}"` });
-        return;
-    }
+    User.findOne({ username: username }).exec()
+        .then((user) => {
+            if (user) {
+                res.status(400).send({ message: `There is already a user with username "${username}"` });
+                return;
+            }
+            // get hashed password
+            bcrypt.hash(password, saltRounds, (err, hash) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send({ message: "Hashing error" });
+                    return;
+                }
 
-    // store username as password
-    bcrypt.hash(password, saltRounds, (err, hash) => {
-        if (err) {
-            console.log(err);
-            res.status(500).send({ message: "Internal server error" });
-            return;
-        }
-
-        users.push({
-            username: username,
-            hashPass: hash,
+                // store in database
+                const user = new User({
+                    username: username,
+                    hashPass: hash,
+                });
+                
+                user.save()
+                    .then(() => {
+                        console.log(`Added new user ${username} to database`);
+                        // send token
+                        res.status(200).send({ token: generateAccessToken(username) });
+                    }).catch((err) => {
+                        console.log(err);
+                        res.status(500).send({ message: "Database error" })
+                    });
+            });
         })
-
-        // send token
-        res.status(200).send({ token: generateAccessToken(username) });
-    })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send({ message: "Database error" })
+        });
 });
 
 app.post("/guest", (req, res) => {
