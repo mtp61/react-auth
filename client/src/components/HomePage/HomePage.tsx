@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { useEffect, useContext } from "react";
-import AuthContextType from "../types/AuthContextType";
-import { AuthContext } from "./AuthManager";
+import AuthContextType from "../../types/AuthContextType";
+import { AuthContext } from "../AuthManager";
 
 const HomePage: FC = () => {
     const authContext: AuthContextType = useContext(AuthContext);
